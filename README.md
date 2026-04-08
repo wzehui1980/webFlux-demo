@@ -351,11 +351,15 @@ mvn test
 
 ### 访问 H2 控制台
 
-浏览器打开：http://localhost:8080/h2-console
+由于 WebFlux 项目使用 Netty 容器，H2 Console 需要在独立端口启动。
+
+**访问地址：** http://localhost:8082
 
 - **JDBC URL:** `jdbc:h2:mem:testdb`
 - **用户名:** `sa`
 - **密码:** (留空)
+
+**注意：** H2 Console 在应用启动时自动启动，无需额外配置。
 
 ## 💡 核心概念
 
