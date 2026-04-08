@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>用户管理 - WebFlux管理系统</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+    }
+
+    .navbar-actions a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .navbar-actions a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .page-header h2 {
+      color: #333;
+      font-size: 22px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-success {
+      background: #28a745;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8f9fa;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+      margin-right: 5px;
+    }
+
+    .badge-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-danger {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .badge-info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      gap: 10px;
+    }
+
+    .pagination a,
+    .pagination span {
+      padding: 8px 12px;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #667eea;
+      transition: all 0.3s;
+    }
+
+    .pagination a:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .pagination .active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .pagination .disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h1>WebFlux 管理系统</h1>
+    <div class="navbar-actions">
+      <span th:text="${#authentication.name}"></span>
+      <a th:href="@{/admin/roles}">角色管理</a>
+      <a href="http://localhost:8082" target="_blank" title="在新窗口打开 H2 数据库控制台">H2 Console</a>
+      <a th:href="@{/api-demo}" style="background: rgba(255,255,255,0.2);">📡 接口调用</a>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit"
+          style="background:none;border:none;color:white;cursor:pointer;padding:8px 15px;border-radius:5px;text-decoration:none;font-size:inherit;">退出登录</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h2>用户管理</h2>
+      <a th:href="@{/admin/users/new}" class="btn btn-primary">+ 新增用户</a>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>姓名</th>
+            <th>年龄</th>
+            <th>手机号</th>
+            <th>邮箱</th>
+            <th>角色</th>
+            <th>状态</th>
+            <th>更新时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="user : ${userPage.content}">
+            <td th:text="${user.id}"></td>
+            <td th:text="${user.name}"></td>
+            <td th:text="${user.age}"></td>
+            <td th:text="${user.phone}"></td>
+            <td th:text="${user.email}"></td>
+            <td>
+              <span th:each="role : ${user.roles}" class="badge badge-info" th:text="${role.name}">
+              </span>
+            </td>
+            <td>
+              <span th:if="${user.active}" class="badge badge-success">正常</span>
+              <span th:unless="${user.active}" class="badge badge-danger">已屏蔽</span>
+            </td>
+            <td th:text="${#temporals.format(user.updateTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+              <div class="actions">
+                <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn btn-sm btn-warning">编辑</a>
+                <form th:action="@{/admin/users/toggle/{id}(id=${user.id})}" method="post" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-secondary" th:text="${user.active} ? '屏蔽' : '激活'">
+                  </button>
+                </form>
+                <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
+                  onsubmit="return confirm('确定要删除该用户吗？');" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" th:if="${totalPages > 1}">
+      <span class="pagination-info">
+        共 <strong th:text="${totalItems}"></strong> 条记录，
+        第 <strong th:text="${currentPage + 1}"></strong>/<strong th:text="${totalPages}"></strong> 页
+      </span>
+
+      <a th:if="${currentPage > 0}" th:href="@{/admin/users(page=${currentPage - 1}, size=10)}">上一页</a>
+      <span th:unless="${currentPage > 0}" class="disabled">上一页</span>
+
+      <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:if="${i != currentPage}" th:href="@{/admin/users(page=${i}, size=10)}" th:text="${i + 1}"></a>
+        <span th:unless="${i != currentPage}" class="active" th:text="${i + 1}"></span>
+      </span>
+
+      <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/users(page=${currentPage + 1}, size=10)}">下一页</a>
+      <span th:unless="${currentPage < totalPages - 1}" class="disabled">下一页</span>
+    </div>
+  </div>
+</body>
+
+</html>

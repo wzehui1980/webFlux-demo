@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${title}">REST API 接口调用演示</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      color: #667eea;
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .api-section {
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .api-section h2 {
+      color: #333;
+      font-size: 24px;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .api-card {
+      background: #f8f9fa;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .api-card:hover {
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      transform: translateX(5px);
+    }
+
+    .api-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .api-method {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-weight: bold;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    .method-get {
+      background: #61affe;
+      color: white;
+    }
+
+    .method-post {
+      background: #49cc90;
+      color: white;
+    }
+
+    .method-put {
+      background: #fca130;
+      color: white;
+    }
+
+    .method-delete {
+      background: #f93e3e;
+      color: white;
+    }
+
+    .api-path {
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      color: #333;
+      flex: 1;
+    }
+
+    .api-description {
+      color: #666;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .api-params {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin-bottom: 15px;
+    }
+
+    .api-params h4 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .param-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .param-name {
+      font-family: 'Courier New', monospace;
+      color: #667eea;
+      font-weight: bold;
+      min-width: 120px;
+    }
+
+    .param-type {
+      color: #999;
+      margin: 0 10px;
+    }
+
+    .param-required {
+      color: #f93e3e;
+      font-size: 12px;
+    }
+
+    .param-optional {
+      color: #999;
+      font-size: 12px;
+    }
+
+    .param-desc {
+      color: #666;
+      margin-left: 10px;
+    }
+
+    .execute-btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 10px 25px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .execute-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .execute-btn:active {
+      transform: translateY(0);
+    }
+
+    .execute-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .response-area {
+      margin-top: 15px;
+      display: none;
+    }
+
+    .response-area.show {
+      display: block;
+    }
+
+    .response-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .response-title {
+      color: #333;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .status-code {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .response-body {
+      background: #2d2d2d;
+      color: #f8f8f2;
+      padding: 15px;
+      border-radius: 5px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      overflow-x: auto;
+      max-height: 400px;
+      overflow-y: auto;
+      line-height: 1.6;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #667eea;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .input-group {
+      margin-bottom: 10px;
+    }
+
+    .input-group label {
+      display: block;
+      color: #333;
+      font-size: 13px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .input-group input,
+    .input-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: 'Courier New', monospace;
+    }
+
+    .input-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .nav-link {
+      display: inline-block;
+      margin-top: 15px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .nav-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <div class="header">
+      <h1>🚀 REST API 接口调用演示</h1>
+      <p>在线测试 WebFlux REST 接口，查看实时响应数据</p>
+      <a href="/" class="nav-link">← 返回首页</a>
+    </div>
+
+    <!-- Mono 示例 -->
+    <div class="api-section">
+      <h2>📦 Mono 示例（单个对象）</h2>
+
+      <!-- GET /api/hello -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/hello?key={name}</span>
+        </div>
+        <div class="api-description">
+          简单的字符串返回示例，支持可选参数
+        </div>
+        <div class="api-params">
+          <h4>请求参数：</h4>
+          <div class="param-item">
+            <span class="param-name">key</span>
+            <span class="param-type">String</span>
+            <span class="param-optional">[可选]</span>
+            <span class="param-desc">默认值：哈哈</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>参数值：</label>
+          <input type="text" id="hello-key" placeholder="输入名称（可选）" value="WebFlux">
+        </div>
+        <button class="execute-btn" onclick="callHello()">执行请求</button>
+        <div class="response-area" id="hello-response"></div>
+      </div>
+
+      <!-- GET /api/helloMono/{name} -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/helloMono/{name}</span>
+        </div>
+        <div class="api-description">
+          路径参数示例，返回 Mono<String>
+        </div>
+        <div class="api-params">
+          <h4>路径参数：</h4>
+          <div class="param-item">
+            <span class="param-name">name</span>
+            <span class="param-type">String</span>
+            <span class="param-required">*必填</span>
+            <span class="param-desc">用户名</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>name 参数：</label>
+          <input type="text" id="hellomono-name" placeholder="输入名称" value="Alice">
+        </div>
+        <button class="execute-btn" onclick="callHelloMono()">执行请求</button>
+        <div class="response-area" id="hellomono-response"></div>
+      </div>
+
+      <!-- GET /api/helloMap -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/helloMap</span>
+        </div>
+        <div class="api-description">
+          随机生成 Map 数据示例，每次返回不同的键值对
+        </div>
+        <button class="execute-btn" onclick="callHelloMap()">执行请求</button>
+        <div class="response-area" id="hellomap-response"></div>
+      </div>
+    </div>
+
+    <!-- Flux 示例 -->
+    <div class="api-section">
+      <h2>🌊 Flux 示例（多个对象/流）</h2>
+
+      <!-- GET /api/helloFlux -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/helloFlux</span>
+        </div>
+        <div class="api-description">
+          返回 Flux<String>，包含多个字符串元素
+        </div>
+        <button class="execute-btn" onclick="callHelloFlux()">执行请求</button>
+        <div class="response-area" id="helloflux-response"></div>
+      </div>
+
+      <!-- GET /api/helloFlux2 -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/helloFlux2</span>
+        </div>
+        <div class="api-description">
+          返回 Flux<UserEntity>，包含多个用户对象
+        </div>
+        <button class="execute-btn" onclick="callHelloFlux2()">执行请求</button>
+        <div class="response-area" id="helloflux2-response"></div>
+      </div>
+
+      <!-- GET /api/see (SSE) -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/see</span>
+        </div>
+        <div class="api-description">
+          Server-Sent Events (SSE) 流式传输示例，每500ms推送一个数据
+        </div>
+        <button class="execute-btn" onclick="callSee()" id="see-btn">开始接收流</button>
+        <div class="response-area" id="see-response"></div>
+      </div>
+    </div>
+
+    <!-- 用户管理 API -->
+    <div class="api-section">
+      <h2>👥 用户管理 API</h2>
+
+      <!-- GET /api/users -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/users</span>
+        </div>
+        <div class="api-description">
+          查询所有用户列表
+        </div>
+        <button class="execute-btn" onclick="callGetAllUsers()">执行请求</button>
+        <div class="response-area" id="getallusers-response"></div>
+      </div>
+
+      <!-- GET /api/users/{id} -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/users/{id}</span>
+        </div>
+        <div class="api-description">
+          根据ID查询单个用户
+        </div>
+        <div class="api-params">
+          <h4>路径参数：</h4>
+          <div class="param-item">
+            <span class="param-name">id</span>
+            <span class="param-type">Long</span>
+            <span class="param-required">*必填</span>
+            <span class="param-desc">用户ID</span>
+          </div>
+        </div>
+        <div class="input-group">
+          <label>用户ID：</label>
+          <input type="number" id="getuser-id" placeholder="输入用户ID" value="1">
+        </div>
+        <button class="execute-btn" onclick="callGetUserById()">执行请求</button>
+        <div class="response-area" id="getuserbyid-response"></div>
+      </div>
+
+      <!-- POST /api/users -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-post">POST</span>
+          <span class="api-path">/api/users</span>
+        </div>
+        <div class="api-description">
+          新增用户
+        </div>
+        <div class="input-group">
+          <label>请求体（JSON）：</label>
+          <textarea id="postuser-body">{
+  "name": "测试用户",
+  "age": 25,
+  "phone": "13900139000",
+  "email": "test@example.com",
+  "active": true
+}</textarea>
+        </div>
+        <button class="execute-btn" onclick="callCreateUser()">执行请求</button>
+        <div class="response-area" id="createuser-response"></div>
+      </div>
+
+      <!-- PUT /api/users/{id} -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-put">PUT</span>
+          <span class="api-path">/api/users/{id}</span>
+        </div>
+        <div class="api-description">
+          更新用户信息
+        </div>
+        <div class="input-group">
+          <label>用户ID：</label>
+          <input type="number" id="putuser-id" placeholder="输入用户ID" value="1">
+        </div>
+        <div class="input-group">
+          <label>请求体（JSON）：</label>
+          <textarea id="putuser-body">{
+  "name": "更新后的用户",
+  "age": 26,
+  "phone": "13900139001",
+  "email": "updated@example.com",
+  "active": true
+}</textarea>
+        </div>
+        <button class="execute-btn" onclick="callUpdateUser()">执行请求</button>
+        <div class="response-area" id="updateuser-response"></div>
+      </div>
+
+      <!-- DELETE /api/users/{id} -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-delete">DELETE</span>
+          <span class="api-path">/api/users/{id}</span>
+        </div>
+        <div class="api-description">
+          删除用户
+        </div>
+        <div class="input-group">
+          <label>用户ID：</label>
+          <input type="number" id="deleteuser-id" placeholder="输入用户ID" value="1">
+        </div>
+        <button class="execute-btn" onclick="callDeleteUser()">执行请求</button>
+        <div class="response-area" id="deleteuser-response"></div>
+      </div>
+
+      <!-- GET /api/users/{id}/phone -->
+      <div class="api-card">
+        <div class="api-header">
+          <span class="api-method method-get">GET</span>
+          <span class="api-path">/api/users/{id}/phone</span>
+        </div>
+        <div class="api-description">
+          查询用户手机号（map 转换示例）
+        </div>
+        <div class="input-group">
+          <label>用户ID：</label>
+          <input type="number" id="getphone-id" placeholder="输入用户ID" value="1">
+        </div>
+        <button class="execute-btn" onclick="callGetPhone()">执行请求</button>
+        <div class="response-area" id="getphone-response"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 通用请求函数
+    async function makeRequest(url, method = 'GET', body = null) {
+      const options = {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      };
+
+      if (body && (method === 'POST' || method === 'PUT')) {
+        options.body = JSON.stringify(body);
+      }
+
+      try {
+        const response = await fetch(url, options);
+        const statusCode = response.status;
+
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          data = await response.text();
+        }
+
+        return {
+          success: response.ok,
+          statusCode: statusCode,
+          data: data
+        };
+      } catch (error) {
+        return {
+          success: false,
+          statusCode: 0,
+          error: error.message
+        };
+      }
+    }
+
+    // 显示响应
+    function showResponse(elementId, result) {
+      const responseArea = document.getElementById(elementId);
+      responseArea.classList.add('show');
+
+      const statusClass = result.success ? 'status-success' : 'status-error';
+      const statusText = result.success ? '成功' : '失败';
+
+      let responseHtml = `
+                <div class="response-header">
+                    <span class="response-title">响应结果</span>
+                    <span class="status-code ${statusClass}">${result.statusCode || 'Error'} - ${statusText}</span>
+                </div>
+                <div class="response-body">`;
+
+      if (result.error) {
+        responseHtml += `<div style="color: #f93e3e;">错误: ${result.error}</div>`;
+      } else {
+        responseHtml += `<pre>${typeof result.data === 'object' ? JSON.stringify(result.data, null, 2) : result.data}</pre>`;
+      }
+
+      responseHtml += '</div>';
+      responseArea.innerHTML = responseHtml;
+    }
+
+    // 显示加载状态
+    function showLoading(elementId) {
+      const responseArea = document.getElementById(elementId);
+      responseArea.classList.add('show');
+      responseArea.innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <div>请求中...</div>
+                </div>
+            `;
+    }
+
+    // ===== Mono 示例 =====
+
+    async function callHello() {
+      const key = document.getElementById('hello-key').value || 'WebFlux';
+      showLoading('hello-response');
+      const result = await makeRequest(`/api/hello?key=${encodeURIComponent(key)}`);
+      showResponse('hello-response', result);
+    }
+
+    async function callHelloMono() {
+      const name = document.getElementById('hellomono-name').value || 'Alice';
+      showLoading('hellomono-response');
+      const result = await makeRequest(`/api/helloMono/${encodeURIComponent(name)}`);
+      showResponse('hellomono-response', result);
+    }
+
+    async function callHelloMap() {
+      showLoading('hellomap-response');
+      const result = await makeRequest('/api/helloMap');
+      showResponse('hellomap-response', result);
+    }
+
+    // ===== Flux 示例 =====
+
+    async function callHelloFlux() {
+      showLoading('helloflux-response');
+      const result = await makeRequest('/api/helloFlux');
+      showResponse('helloflux-response', result);
+    }
+
+    async function callHelloFlux2() {
+      showLoading('helloflux2-response');
+      const result = await makeRequest('/api/helloFlux2');
+      showResponse('helloflux2-response', result);
+    }
+
+    let seeEventSource = null;
+
+    function callSee() {
+      const btn = document.getElementById('see-btn');
+      const responseArea = document.getElementById('see-response');
+      responseArea.classList.add('show');
+
+      if (seeEventSource) {
+        seeEventSource.close();
+        seeEventSource = null;
+        btn.textContent = '开始接收流';
+        responseArea.innerHTML = '<div class="response-header"><span class="response-title">流已停止</span></div>';
+        return;
+      }
+
+      btn.textContent = '停止接收';
+      responseArea.innerHTML = `
+                <div class="response-header">
+                    <span class="response-title">流式数据接收中...</span>
+                    <span class="status-code status-success">SSE 连接中</span>
+                </div>
+                <div class="response-body" id="see-data"></div>
+            `;
+
+      const dataDiv = document.getElementById('see-data');
+      seeEventSource = new EventSource('/api/see');
+
+      seeEventSource.onmessage = function (event) {
+        const timestamp = new Date().toLocaleTimeString();
+        dataDiv.innerHTML += `<div>[${timestamp}] ${event.data}</div>`;
+        dataDiv.scrollTop = dataDiv.scrollHeight;
+      };
+
+      seeEventSource.onerror = function (error) {
+        console.error('SSE Error:', error);
+        seeEventSource.close();
+        seeEventSource = null;
+        btn.textContent = '开始接收流';
+        dataDiv.innerHTML += '<div style="color: #f93e3e; margin-top: 10px;">连接已关闭</div>';
+      };
+    }
+
+    // ===== 用户管理 API =====
+
+    async function callGetAllUsers() {
+      showLoading('getallusers-response');
+      const result = await makeRequest('/api/users');
+      showResponse('getallusers-response', result);
+    }
+
+    async function callGetUserById() {
+      const id = document.getElementById('getuser-id').value;
+      showLoading('getuserbyid-response');
+      const result = await makeRequest(`/api/users/${id}`);
+      showResponse('getuserbyid-response', result);
+    }
+
+    async function callCreateUser() {
+      const bodyText = document.getElementById('postuser-body').value;
+      showLoading('createuser-response');
+      try {
+        const body = JSON.parse(bodyText);
+        const result = await makeRequest('/api/users', 'POST', body);
+        showResponse('createuser-response', result);
+      } catch (e) {
+        showResponse('createuser-response', {
+          success: false,
+          statusCode: 0,
+          error: 'JSON 格式错误: ' + e.message
+        });
+      }
+    }
+
+    async function callUpdateUser() {
+      const id = document.getElementById('putuser-id').value;
+      const bodyText = document.getElementById('putuser-body').value;
+      showLoading('updateuser-response');
+      try {
+        const body = JSON.parse(bodyText);
+        const result = await makeRequest(`/api/users/${id}`, 'PUT', body);
+        showResponse('updateuser-response', result);
+      } catch (e) {
+        showResponse('updateuser-response', {
+          success: false,
+          statusCode: 0,
+          error: 'JSON 格式错误: ' + e.message
+        });
+      }
+    }
+
+    async function callDeleteUser() {
+      const id = document.getElementById('deleteuser-id').value;
+      if (!confirm(`确定要删除用户 ID=${id} 吗？`)) {
+        return;
+      }
+      showLoading('deleteuser-response');
+      const result = await makeRequest(`/api/users/${id}`, 'DELETE');
+      showResponse('deleteuser-response', result);
+    }
+
+    async function callGetPhone() {
+      const id = document.getElementById('getphone-id').value;
+      showLoading('getphone-response');
+      const result = await makeRequest(`/api/users/${id}/phone`);
+      showResponse('getphone-response', result);
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${isEdit} ? '编辑用户' : '新增用户'">用户表单</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .navbar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-header {
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-header h2 {
+      color: #333;
+      font-size: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-group label .required {
+      color: #dc3545;
+      margin-left: 3px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 8px;
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: auto;
+      margin-right: 5px;
+    }
+
+    .checkbox-item label {
+      margin-bottom: 0;
+      font-weight: normal;
+      cursor: pointer;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .alert {
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .alert-error {
+      background-color: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+
+    .help-text {
+      color: #666;
+      font-size: 12px;
+      margin-top: 5px;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h1>WebFlux 管理系统</h1>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <a th:href="@{/admin/users}">返回用户列表</a>
+      <a href="http://localhost:8082" target="_blank" title="在新窗口打开 H2 数据库控制台"
+        style="color: white; text-decoration: none;">H2 Console</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="form-container">
+      <div class="form-header">
+        <h2 th:text="${isEdit} ? '编辑用户' : '新增用户'"></h2>
+      </div>
+
+      <div th:if="${param.error != null and param.error.size() > 0}" class="alert alert-error" th:text="${param.error}">
+      </div>
+
+      <form th:action="${isEdit} ? @{/admin/users/update/{id}(id=${user.id})} : @{/admin/users/save}"
+        th:object="${user}" method="post">
+
+        <input type="hidden" th:field="*{id}" th:if="${isEdit}">
+
+        <div class="form-group">
+          <label for="name">姓名 <span class="required">*</span></label>
+          <input type="text" id="name" th:field="*{name}" required>
+        </div>
+
+        <div class="form-group">
+          <label for="age">年龄 <span class="required">*</span></label>
+          <input type="number" id="age" th:field="*{age}" min="1" max="150" required>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">手机号 <span class="required">*</span></label>
+          <input type="tel" id="phone" th:field="*{phone}" pattern="[0-9]{11}" placeholder="请输入11位手机号" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">邮箱</label>
+          <input type="email" id="email" th:field="*{email}" placeholder="选填">
+        </div>
+
+        <div class="form-group">
+          <label>角色 <span class="required">*</span></label>
+          <div class="checkbox-group">
+            <div class="checkbox-item" th:each="role : ${allRoles}">
+              <input type="checkbox" th:id="'role_' + ${role.id}" name="roleIds" th:value="${role.id}"
+                th:checked="${user != null and user.roles != null and #lists.contains(user.roles.![id], role.id)}">
+              <label th:for="'role_' + ${role.id}" th:text="${role.name}"></label>
+            </div>
+          </div>
+          <small class="help-text">可多选，至少选择一个角色</small>
+        </div>
+
+        <div class="form-group" th:if="${isEdit}">
+          <label for="active">状态</label>
+          <select id="active" th:field="*{active}">
+            <option th:value="true">正常</option>
+            <option th:value="false">已屏蔽</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">保存</button>
+          <a th:href="@{/admin/users}" class="btn btn-secondary">取消</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

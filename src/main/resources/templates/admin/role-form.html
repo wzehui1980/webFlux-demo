@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${isEdit} ? '编辑角色' : '新增角色'">角色表单</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+    }
+
+    .navbar a {
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .navbar a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-header {
+      margin-bottom: 30px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-header h2 {
+      color: #333;
+      font-size: 22px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .form-group label .required {
+      color: #dc3545;
+      margin-left: 3px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 2px solid #f0f0f0;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    .alert {
+      padding: 12px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .alert-error {
+      background-color: #fee;
+      color: #c33;
+      border: 1px solid #fcc;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h1>WebFlux 管理系统</h1>
+    <div style="display: flex; align-items: center; gap: 15px;">
+      <a th:href="@{/admin/roles}">返回角色列表</a>
+      <a href="http://localhost:8082" target="_blank" title="在新窗口打开 H2 数据库控制台"
+        style="color: white; text-decoration: none;">H2 Console</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="form-container">
+      <div class="form-header">
+        <h2 th:text="${isEdit} ? '编辑角色' : '新增角色'"></h2>
+      </div>
+
+      <div th:if="${param.error != null and param.error.size() > 0}" class="alert alert-error" th:text="${param.error}">
+      </div>
+
+      <form th:action="${isEdit} ? @{/admin/roles/update/{id}(id=${role.id})} : @{/admin/roles/save}"
+        th:object="${role}" method="post">
+
+        <input type="hidden" th:field="*{id}" th:if="${isEdit}">
+
+        <div class="form-group">
+          <label for="name">角色名称 <span class="required">*</span></label>
+          <input type="text" id="name" th:field="*{name}" required placeholder="例如：ADMIN, USER, MANAGER">
+          <small style="color: #666; display: block; margin-top: 5px;">
+            角色名称将用于权限控制，建议使用大写字母
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="description">角色描述</label>
+          <textarea id="description" th:field="*{description}" placeholder="选填，描述该角色的用途和权限"></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">保存</button>
+          <a th:href="@{/admin/roles}" class="btn btn-secondary">取消</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+
+</html>

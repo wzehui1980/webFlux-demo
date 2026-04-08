@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>角色管理 - WebFlux管理系统</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+
+    .navbar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .navbar h1 {
+      font-size: 24px;
+    }
+
+    .navbar-actions a {
+      color: white;
+      text-decoration: none;
+      margin-left: 20px;
+      padding: 8px 15px;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+
+    .navbar-actions a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .page-header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .page-header h2 {
+      color: #333;
+      font-size: 22px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f8f9fa;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 2px solid #dee2e6;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #dee2e6;
+    }
+
+    tbody tr:hover {
+      background: #f8f9fa;
+    }
+
+    .actions {
+      display: flex;
+      gap: 5px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="navbar">
+    <h1>WebFlux 管理系统</h1>
+    <div class="navbar-actions">
+      <a th:href="@{/admin/users}">用户管理</a>
+      <a th:href="@{/admin/roles}" style="background: rgba(255,255,255,0.2);">角色管理</a>
+      <a href="http://localhost:8082" target="_blank" title="在新窗口打开 H2 数据库控制台">H2 Console</a>
+      <a th:href="@{/api-demo}" style="background: rgba(255,255,255,0.2);">📡 接口调用</a>
+      <form th:action="@{/logout}" method="post" style="display:inline;">
+        <button type="submit"
+          style="background:none;border:none;color:white;cursor:pointer;padding:8px 15px;border-radius:5px;text-decoration:none;font-size:inherit;">退出登录</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h2>角色管理</h2>
+      <a th:href="@{/admin/roles/new}" class="btn btn-primary">+ 新增角色</a>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>角色名称</th>
+            <th>描述</th>
+            <th>更新时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="role : ${roles}">
+            <td th:text="${role.id}"></td>
+            <td th:text="${role.name}"></td>
+            <td th:text="${role.description}"></td>
+            <td th:text="${#temporals.format(role.updateTime, 'yyyy-MM-dd HH:mm')}"></td>
+            <td>
+              <div class="actions">
+                <a th:href="@{/admin/roles/edit/{id}(id=${role.id})}" class="btn btn-sm btn-warning">编辑</a>
+                <!-- ADMIN 角色不显示删除按钮 -->
+                <form th:if="${role.name != 'ADMIN'}" th:action="@{/admin/roles/delete/{id}(id=${role.id})}"
+                  method="post" onsubmit="return confirm('确定要删除该角色吗？');" style="display:inline;">
+                  <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+
+</html>
