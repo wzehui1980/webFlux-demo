@@ -133,7 +133,7 @@ mvn spring-boot:run
 
 4. **验证启动**
 
-访问 http://localhost:8080/hello，如果返回 `Hello 哈哈`，说明启动成功。
+访问 http://localhost:8080/api/hello，如果返回 `Hello 哈哈`，说明启动成功。
 
 ## 📚 API 文档
 
@@ -141,12 +141,12 @@ mvn spring-boot:run
 
 | 方法 | 路径 | 描述 | 示例 |
 |------|------|------|------|
-| GET | `/hello` | 基础字符串响应 | `/hello?key=World` |
-| GET | `/helloMono/{name}` | Mono 响应示例 | `/helloMono/Alice` |
-| GET | `/helloMap` | Map 数据响应 | `/helloMap` |
-| GET | `/helloFlux` | Flux 多元素响应 | `/helloFlux` |
-| GET | `/helloFlux2` | Flux 对象流响应 | `/helloFlux2` |
-| GET | `/see` | SSE 流式推送 | `/see` |
+| GET | `/api/hello` | 基础字符串响应 | `/api/hello?key=World` |
+| GET | `/api/helloMono/{name}` | Mono 响应示例 | `/api/helloMono/Alice` |
+| GET | `/api/helloMap` | Map 数据响应 | `/api/helloMap` |
+| GET | `/api/helloFlux` | Flux 多元素响应 | `/api/helloFlux` |
+| GET | `/api/helloFlux2` | Flux 对象流响应 | `/api/helloFlux2` |
+| GET | `/api/see` | SSE 流式推送 | `/api/see` |
 
 ### 用户管理接口
 
