@@ -651,6 +651,413 @@ curl http://localhost:8080/api/see
 - 测试脚本：验证响应状态码和数据格式
 - Collection Runner：批量执行所有接口测试
 
+## 6.5 前端使用 Axios 调用
+
+Axios 是一个基于 Promise 的 HTTP 客户端，适用于浏览器和 Node.js。相比原生 Fetch API，Axios 提供了更简洁的 API 和更好的错误处理。
+
+### 6.5.1 引入 Axios
+
+**方式1：CDN 引入（推荐用于简单项目）**
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Axios 示例</title>
+    <!-- 引入 Axios -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+    <div id="app"></div>
+    <script src="app.js"></script>
+</body>
+</html>
+```
+
+**方式2：npm 安装（推荐用于大型项目）**
+
+```bash
+npm install axios
+```
+
+```javascript
+import axios from 'axios';
+```
+
+### 6.5.2 Axios 基本配置
+
+```javascript
+// 配置 Axios 默认值
+axios.defaults.baseURL = 'http://localhost:8080';
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+axios.defaults.timeout = 10000; // 超时时间 10 秒
+
+// 创建 Axios 实例（推荐）
+const apiClient = axios.create({
+    baseURL: 'http://localhost:8080',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+```
+
+### 6.5.3 发送 GET 请求
+
+```javascript
+// 1. 查询所有用户
+async function getAllUsers() {
+    try {
+        const response = await axios.get('/api/users');
+        console.log('用户列表:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('请求失败:', error.message);
+        throw error;
+    }
+}
+
+// 2. 根据 ID 查询用户
+async function getUserById(id) {
+    try {
+        const response = await axios.get(`/api/users/${id}`);
+        console.log('用户信息:', response.data);
+        return response.data;
+    } catch (error) {
+        if (error.response) {
+            // 服务器返回了错误状态码
+            console.error('服务器错误:', error.response.status, error.response.data);
+        } else if (error.request) {
+            // 请求已发出但没有收到响应
+            console.error('网络错误:', error.request);
+        } else {
+            // 其他错误
+            console.error('请求错误:', error.message);
+        }
+        throw error;
+    }
+}
+
+// 3. 查询用户手机号
+async function getUserPhone(id) {
+    try {
+        const response = await axios.get(`/api/users/${id}/phone`);
+        console.log('手机号:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('请求失败:', error.message);
+        throw error;
+    }
+}
+```
+
+### 6.5.4 发送 POST 请求
+
+```javascript
+// 新增用户
+async function createUser(userData) {
+    try {
+        const response = await axios.post('/api/users', userData);
+        console.log('创建成功:', response.data);
+        console.log('状态码:', response.status); // 201
+        return response.data;
+    } catch (error) {
+        console.error('创建失败:', error.response?.data || error.message);
+        throw error;
+    }
+}
+
+// 使用示例
+const newUser = {
+    name: '测试用户',
+    age: 25,
+    phone: '13900139000',
+    email: 'test@example.com',
+    active: true
+};
+
+createUser(newUser);
+```
+
+### 6.5.5 发送 PUT 请求
+
+```javascript
+// 更新用户
+async function updateUser(id, userData) {
+    try {
+        const response = await axios.put(`/api/users/${id}`, userData);
+        console.log('更新成功:', response.data);
+        return response.data;
+    } catch (error) {
+        console.error('更新失败:', error.response?.data || error.message);
+        throw error;
+    }
+}
+
+// 使用示例
+const updatedUser = {
+    name: '更新后的用户',
+    age: 26,
+    phone: '13900139001',
+    email: 'updated@example.com',
+    active: true
+};
+
+updateUser(1, updatedUser);
+```
+
+### 6.5.6 发送 DELETE 请求
+
+```javascript
+// 删除用户
+async function deleteUser(id) {
+    try {
+        const response = await axios.delete(`/api/users/${id}`);
+        console.log('删除成功，状态码:', response.status); // 204
+        return true;
+    } catch (error) {
+        console.error('删除失败:', error.response?.data || error.message);
+        throw error;
+    }
+}
+
+// 使用示例
+deleteUser(1);
+```
+
+### 6.5.7 完整的封装示例
+
+```javascript
+// api.js - API 封装模块
+
+// 创建 Axios 实例
+const apiClient = axios.create({
+    baseURL: 'http://localhost:8080',
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
+
+// 请求拦截器
+apiClient.interceptors.request.use(
+    config => {
+        console.log('发送请求:', config.method.toUpperCase(), config.url);
+        // 可以在这里添加 token
+        // const token = localStorage.getItem('token');
+        // if (token) {
+        //     config.headers.Authorization = `Bearer ${token}`;
+        // }
+        return config;
+    },
+    error => {
+        return Promise.reject(error);
+    }
+);
+
+// 响应拦截器
+apiClient.interceptors.response.use(
+    response => {
+        console.log('响应成功:', response.status);
+        return response.data;
+    },
+    error => {
+        if (error.response) {
+            console.error('服务器错误:', error.response.status, error.response.data);
+        } else if (error.request) {
+            console.error('网络错误: 无法连接到服务器');
+        } else {
+            console.error('请求错误:', error.message);
+        }
+        return Promise.reject(error);
+    }
+);
+
+// 用户 API
+export const userAPI = {
+    // 查询所有用户
+    getAll: () => apiClient.get('/api/users'),
+    
+    // 根据 ID 查询用户
+    getById: (id) => apiClient.get(`/api/users/${id}`),
+    
+    // 新增用户
+    create: (userData) => apiClient.post('/api/users', userData),
+    
+    // 更新用户
+    update: (id, userData) => apiClient.put(`/api/users/${id}`, userData),
+    
+    // 删除用户
+    delete: (id) => apiClient.delete(`/api/users/${id}`),
+    
+    // 查询用户手机号
+    getPhone: (id) => apiClient.get(`/api/users/${id}/phone`)
+};
+
+// Hello API
+export const helloAPI = {
+    hello: (key) => apiClient.get('/api/hello', { params: { key } }),
+    helloMono: (name) => apiClient.get(`/api/helloMono/${name}`),
+    helloMap: () => apiClient.get('/api/helloMap'),
+    helloFlux: () => apiClient.get('/api/helloFlux'),
+    helloFlux2: () => apiClient.get('/api/helloFlux2')
+};
+```
+
+**使用封装后的 API：**
+
+```javascript
+import { userAPI, helloAPI } from './api.js';
+
+// 查询所有用户
+userAPI.getAll()
+    .then(users => {
+        console.log('用户列表:', users);
+        // 渲染到页面
+        renderUsers(users);
+    })
+    .catch(error => {
+        console.error('获取用户列表失败:', error);
+        showError('加载失败，请重试');
+    });
+
+// 新增用户
+userAPI.create({
+    name: '新用户',
+    age: 20,
+    phone: '13900000000',
+    email: 'new@example.com',
+    active: true
+})
+.then(user => {
+    console.log('创建成功:', user);
+    showSuccess('用户创建成功');
+    // 刷新列表
+    loadUserList();
+})
+.catch(error => {
+    console.error('创建失败:', error);
+    showError('创建失败，请检查输入');
+});
+
+// 链式调用：先保存用户，再查询手机号
+helloAPI.helloMono('World')
+    .then(message => {
+        console.log(message); // "Hello Mono World"
+        return userAPI.getById(1);
+    })
+    .then(user => {
+        console.log('用户:', user);
+        return userAPI.getPhone(user.id);
+    })
+    .then(phone => {
+        console.log('手机号:', phone);
+    })
+    .catch(error => {
+        console.error('操作失败:', error);
+    });
+```
+
+### 6.5.8 Axios vs Fetch 对比
+
+| 特性 | Axios | Fetch |
+|------|-------|-------|
+| **安装** | 需要安装或 CDN 引入 | 浏览器原生支持 |
+| **语法** | 更简洁直观 | 较繁琐 |
+| **自动 JSON 转换** | ✅ 自动 | ❌ 需手动 `.json()` |
+| **错误处理** | ✅ 完善的错误对象 | ❌ 只有网络错误才 reject |
+| **请求拦截器** | ✅ 支持 | ❌ 不支持 |
+| **响应拦截器** | ✅ 支持 | ❌ 不支持 |
+| **取消请求** | ✅ `CancelToken` | ✅ `AbortController` |
+| **浏览器兼容** | 需要 polyfill（IE） | 现代浏览器支持 |
+| **文件大小** | ~13KB (gzipped) | 0KB (原生) |
+
+**推荐使用场景：**
+- ✅ **小型项目**：直接使用 Fetch API，无需额外依赖
+- ✅ **中大型项目**：使用 Axios，更好的错误处理和拦截器支持
+- ✅ **需要请求/响应拦截**：必须使用 Axios
+- ✅ **需要自动 JSON 转换**：Axios 更方便
+
+### 6.5.9 实战示例：接口测试页面
+
+本项目中的 `/api-demo` 页面就是使用 Axios 实现的完整示例：
+
+```javascript
+// 通用请求函数（使用 Axios）
+async function makeRequest(url, method = 'GET', body = null) {
+    try {
+        const config = {
+            method: method.toLowerCase(),
+            url: url
+        };
+
+        if (body && (method === 'POST' || method === 'PUT')) {
+            config.data = body;
+        }
+
+        const response = await axios(config);
+        
+        return {
+            success: true,
+            statusCode: response.status,
+            data: response.data
+        };
+    } catch (error) {
+        if (error.response) {
+            // 服务器返回了错误状态码
+            return {
+                success: false,
+                statusCode: error.response.status,
+                data: error.response.data,
+                error: error.response.data?.message || error.message
+            };
+        } else if (error.request) {
+            // 请求已发出但没有收到响应
+            return {
+                success: false,
+                statusCode: 0,
+                error: '网络错误，无法连接到服务器'
+            };
+        } else {
+            // 其他错误
+            return {
+                success: false,
+                statusCode: 0,
+                error: error.message
+            };
+        }
+    }
+}
+
+// 使用示例
+async function callGetAllUsers() {
+    showLoading('getallusers-response');
+    const result = await makeRequest('/api/users');
+    showResponse('getallusers-response', result);
+}
+
+async function callCreateUser() {
+    const bodyText = document.getElementById('postuser-body').value;
+    showLoading('createuser-response');
+    try {
+        const body = JSON.parse(bodyText);
+        const result = await makeRequest('/api/users', 'POST', body);
+        showResponse('createuser-response', result);
+    } catch (e) {
+        showResponse('createuser-response', {
+            success: false,
+            statusCode: 0,
+            error: 'JSON 格式错误: ' + e.message
+        });
+    }
+}
+```
+
+**访问在线演示：** http://localhost:8080/api-demo
+- 测试脚本：验证响应状态码和数据格式
+- Collection Runner：批量执行所有接口测试
+
 ## 5.1 用户服务（UserService）
 
 ```java
