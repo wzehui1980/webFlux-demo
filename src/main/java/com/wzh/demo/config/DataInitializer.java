@@ -5,19 +5,33 @@ import com.wzh.demo.model.UserEntity;
 import com.wzh.demo.repository.RoleRepository;
 import com.wzh.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * DataInitializer类实现CommandLineRunner接口，用于在应用程序启动时初始化基础数据
+ * 该类使用Spring框架的注解和依赖注入功能
+ */
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
 
+  // 注入UserRepository，用于用户数据的操作
   private final UserRepository userRepository;
+  // 注入RoleRepository，用于角色数据的操作
   private final RoleRepository roleRepository;
 
+  /**
+   * 实现CommandLineRunner接口的run方法，在应用启动时执行
+   * 
+   * @param args 命令行参数
+   * @throws Exception 可能抛出的异常
+   */
   @Override
   public void run(String... args) throws Exception {
     // 检查是否已有数据
@@ -31,7 +45,7 @@ public class DataInitializer implements CommandLineRunner {
       roleRepository.save(userRole);
       roleRepository.save(managerRole);
 
-      System.out.println("初始角色已创建");
+      log.info("初始角色已创建: ADMIN, USER, MANAGER");
     }
 
     if (userRepository.count() == 0) {
@@ -83,8 +97,9 @@ public class DataInitializer implements CommandLineRunner {
       userRepository.save(user2);
       userRepository.save(user3);
 
-      System.out.println("初始数据已插入");
-      System.out.println("管理员账号: admin / 任意密码");
+      log.info("初始数据已插入");
+      log.info("管理员账号: admin / 任意密码");
+      log.info("普通用户: 张三, 李四, 王五 / 任意密码");
     }
   }
 }

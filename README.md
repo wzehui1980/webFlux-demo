@@ -133,7 +133,7 @@ mvn spring-boot:run
 
 4. **验证启动**
 
-访问 http://localhost:8080/api/hello，如果返回 `Hello 哈哈`，说明启动成功。
+访问 [http://localhost:8080/api/hello](http://localhost:8080/api/hello) ，如果返回 `Hello 哈哈`，说明启动成功。
 
 ## 📚 API 文档
 
@@ -239,7 +239,7 @@ Accept: text/event-stream
 
 ### 后台管理系统
 
-启动项目后访问 http://localhost:8080/login 进入登录页面。
+启动项目后访问 [http://localhost:8080/login](http://localhost:8080/login) 进入登录页面。
 
 **测试账号：**
 - 用户名：`admin`（管理员，进入后台管理）
@@ -353,7 +353,7 @@ mvn test
 
 由于 WebFlux 项目使用 Netty 容器，H2 Console 需要在独立端口启动。
 
-**访问地址：** http://localhost:8082
+**访问地址：** [http://localhost:8082](http://localhost:8082)
 
 - **JDBC URL:** `jdbc:h2:mem:testdb`
 - **用户名:** `sa`
