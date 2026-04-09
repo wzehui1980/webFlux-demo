@@ -18,6 +18,10 @@ import java.util.Set;
 @Table(name = "users")
 public class UserEntity {
 
+	public UserEntity(Object object, String string, int i, String string2, String string3, boolean b, Object object2) {
+		// TODO Auto-generated constructor stub
+	}
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
