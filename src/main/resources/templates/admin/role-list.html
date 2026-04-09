@@ -139,6 +139,51 @@
       display: flex;
       gap: 5px;
     }
+
+    /* 分页样式 */
+    .pagination {
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .pagination a,
+    .pagination span {
+      padding: 8px 12px;
+      margin: 0 3px;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      text-decoration: none;
+      color: #667eea;
+      transition: all 0.3s;
+    }
+
+    .pagination a:hover {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .pagination .active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .pagination .disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .pagination-info {
+      color: #666;
+      font-size: 14px;
+    }
   </style>
 </head>
 
@@ -175,7 +220,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr th:each="role : ${roles}">
+          <tr th:each="role : ${rolePage.content}">
             <td th:text="${role.id}"></td>
             <td th:text="${role.name}"></td>
             <td th:text="${role.description}"></td>
@@ -193,6 +238,25 @@
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <!-- 分页导航 -->
+    <div class="pagination" th:if="${totalPages > 1}">
+      <span class="pagination-info">
+        共 <strong th:text="${totalItems}"></strong> 条记录，
+        第 <strong th:text="${currentPage + 1}"></strong>/<strong th:text="${totalPages}"></strong> 页
+      </span>
+
+      <a th:if="${currentPage > 0}" th:href="@{/admin/roles(page=${currentPage - 1}, size=10)}">上一页</a>
+      <span th:unless="${currentPage > 0}" class="disabled">上一页</span>
+
+      <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
+        <a th:if="${i != currentPage}" th:href="@{/admin/roles(page=${i}, size=10)}" th:text="${i + 1}"></a>
+        <span th:unless="${i != currentPage}" class="active" th:text="${i + 1}"></span>
+      </span>
+
+      <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/roles(page=${currentPage + 1}, size=10)}">下一页</a>
+      <span th:unless="${currentPage < totalPages - 1}" class="disabled">下一页</span>
     </div>
   </div>
 </body>

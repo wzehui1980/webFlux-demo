@@ -173,7 +173,14 @@
         <h2 th:text="${isEdit} ? '编辑角色' : '新增角色'"></h2>
       </div>
 
-      <div th:if="${param.error != null and param.error.size() > 0}" class="alert alert-error" th:text="${param.error}">
+      <!-- 显示错误信息 -->
+      <div th:if="${errorMessage != null and !errorMessage.isEmpty()}" class="alert alert-error"
+        th:text="${errorMessage}">
+      </div>
+
+      <!-- 兼容旧的 URL 参数方式 -->
+      <div th:if="${param.error != null and param.error.size() > 0}" class="alert alert-error"
+        th:text="${param.error[0]}">
       </div>
 
       <form th:action="${isEdit} ? @{/admin/roles/update/{id}(id=${role.id})} : @{/admin/roles/save}"

@@ -257,10 +257,21 @@ public class AdminController {
 
   // ==================== 角色管理 ====================
 
-  // 角色列表页面
+  // 角色列表页面（分页）
   @GetMapping("/roles")
-  public String listRoles(Model model) {
-    model.addAttribute("roles", roleService.findAllRoles());
+  public String listRoles(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      Model model) {
+
+    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+    Page<RoleEntity> rolePage = roleService.findRolesWithPage(pageable);
+
+    model.addAttribute("rolePage", rolePage);
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", rolePage.getTotalPages());
+    model.addAttribute("totalItems", rolePage.getTotalElements());
+
     return "admin/role-list";
   }
 
@@ -274,10 +285,17 @@ public class AdminController {
 
   // 保存新角色
   @PostMapping("/roles/save")
-  public Mono<String> saveRole(@ModelAttribute RoleEntity role) {
+  public Mono<String> saveRole(@ModelAttribute RoleEntity role, org.springframework.ui.Model model) {
     return roleService.save(role)
         .then(Mono.just("redirect:/admin/roles"))
-        .onErrorResume(e -> Mono.just("redirect:/admin/roles/new?error=" + e.getMessage()));
+        .onErrorResume(e -> {
+          log.error("保存角色失败: {}", e.getMessage());
+          // 将错误信息添加到 model，返回表单页面
+          model.addAttribute("role", role);
+          model.addAttribute("isEdit", false);
+          model.addAttribute("errorMessage", e.getMessage());
+          return Mono.just("admin/role-form");
+        });
   }
 
   // 显示编辑角色表单
@@ -294,10 +312,19 @@ public class AdminController {
 
   // 更新角色
   @PostMapping("/roles/update/{id}")
-  public Mono<String> updateRole(@PathVariable Long id, @ModelAttribute RoleEntity role) {
+  public Mono<String> updateRole(@PathVariable Long id, @ModelAttribute RoleEntity role,
+      org.springframework.ui.Model model) {
     role.setId(id);
     return roleService.save(role)
-        .then(Mono.just("redirect:/admin/roles"));
+        .then(Mono.just("redirect:/admin/roles"))
+        .onErrorResume(e -> {
+          log.error("更新角色失败: {}", e.getMessage());
+          // 将错误信息添加到 model，返回表单页面
+          model.addAttribute("role", role);
+          model.addAttribute("isEdit", true);
+          model.addAttribute("errorMessage", e.getMessage());
+          return Mono.just("admin/role-form");
+        });
   }
 
   // 删除角色
