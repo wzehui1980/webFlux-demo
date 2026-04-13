@@ -253,7 +253,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr th:each="user : ${userPage.content}">
+          <tr th:each="user : ${users}">
             <td th:text="${user.id}"></td>
             <td th:text="${user.name}"></td>
             <td th:text="${user.age}"></td>
@@ -284,24 +284,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <div class="pagination" th:if="${totalPages > 1}">
-      <span class="pagination-info">
-        共 <strong th:text="${totalItems}"></strong> 条记录，
-        第 <strong th:text="${currentPage + 1}"></strong>/<strong th:text="${totalPages}"></strong> 页
-      </span>
-
-      <a th:if="${currentPage > 0}" th:href="@{/admin/users(page=${currentPage - 1}, size=10)}">上一页</a>
-      <span th:unless="${currentPage > 0}" class="disabled">上一页</span>
-
-      <span th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-        <a th:if="${i != currentPage}" th:href="@{/admin/users(page=${i}, size=10)}" th:text="${i + 1}"></a>
-        <span th:unless="${i != currentPage}" class="active" th:text="${i + 1}"></span>
-      </span>
-
-      <a th:if="${currentPage < totalPages - 1}" th:href="@{/admin/users(page=${currentPage + 1}, size=10)}">下一页</a>
-      <span th:unless="${currentPage < totalPages - 1}" class="disabled">下一页</span>
     </div>
   </div>
 </body>

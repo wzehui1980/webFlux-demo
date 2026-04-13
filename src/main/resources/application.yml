@@ -4,7 +4,7 @@ spring:
   
   # H2 Database Configuration (R2DBC)
   r2dbc:
-    url: r2dbc:h2:mem:///testdb
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
     username: sa
     password:
   
@@ -16,9 +16,9 @@ spring:
       settings:
         web-allow-others: true
   
-  # R2DBC Schema 初始化
+  # R2DBC Schema 初始化（仅初始化表结构，数据由 DataInitializer 插入以避免中文编码问题）
   sql:
     init:
       mode: always
       schema-locations: classpath:schema.sql
-      data-locations: classpath:data.sql
+      # data-locations: classpath:data.sql  # 禁用，Windows 环境下 SQL 文件中文会乱码

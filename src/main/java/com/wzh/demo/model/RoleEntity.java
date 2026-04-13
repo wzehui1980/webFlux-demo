@@ -1,13 +1,12 @@
 package com.wzh.demo.model;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,14 +32,12 @@ public class RoleEntity {
 
   // 创建时间
   @Column("create_time")
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
   private LocalDateTime createTime;
 
   // 更新时间
   @Column("update_time")
+  @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
   private LocalDateTime updateTime;
-
-  // 与用户的多对多关系（R2DBC 不支持反向映射，这里仅用于展示）
-  @MappedCollection(idColumn = "role_id", keyColumn = "user_id")
-  private Set<UserEntity> users = new HashSet<>();
 
 }

@@ -5,9 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
-import org.springframework.data.relational.core.mapping.MappedCollection;
 import org.springframework.data.relational.core.mapping.Table;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,14 +45,16 @@ public class UserEntity {
 
 	// 创建时间
 	@Column("create_time")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private LocalDateTime createTime;
 
 	// 更新时间
 	@Column("update_time")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
 	private LocalDateTime updateTime;
 
-	// 与角色的多对多关系（R2DBC 不支持 @ManyToMany，需要手动管理）
-	@MappedCollection(idColumn = "user_id", keyColumn = "role_id")
+	// 与角色的多对多关系（R2DBC 不支持自动映射，使用 @Transient 标记为非持久化字段）
+	@Transient
 	private Set<RoleEntity> roles = new HashSet<>();
 
 }

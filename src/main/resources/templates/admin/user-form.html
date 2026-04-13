@@ -231,7 +231,7 @@
           <div class="checkbox-group">
             <div class="checkbox-item" th:each="role : ${allRoles}">
               <input type="checkbox" th:id="'role_' + ${role.id}" name="roleIds" th:value="${role.id}"
-                th:checked="${user != null and user.roles != null and #lists.contains(user.roles.![id], role.id)}">
+                th:checked="${user != null and user.roles != null and user.roles.?[id == __${role.id}__].size() > 0}">
               <label th:for="'role_' + ${role.id}" th:text="${role.name}"></label>
             </div>
           </div>

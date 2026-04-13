@@ -220,36 +220,35 @@
 
       <!-- 教程内容 -->
       <div class="tutorial-content">
-        <h2>📖 Spring WebFlux 完整实操教程</h2>
+        <h2>📖 Spring WebFlux 学习中心</h2>
 
-        <p>本教程面向有 Spring Boot 基础、想入门 Spring WebFlux 的开发者，全程实操落地，涵盖「环境搭建→REST接口开发→接口调用（客户端）→异常处理→登录认证→角色管理→后台系统→进阶优化」。
-        </p>
+        <p>欢迎使用 Spring WebFlux 响应式编程学习系统！本系统提供完整的 WebFlux 实战示例和交互式学习体验。</p>
 
-        <h3>✨ 核心特性</h3>
+        <h3>✨ 系统功能</h3>
         <div class="feature-list">
           <div class="feature-item">
-            <h4>🚀 响应式编程</h4>
-            <p>基于 Project Reactor 的 Mono/Flux 异步流处理</p>
+            <h4>🚀 REST API 测试</h4>
+            <p>在线测试所有 WebFlux REST 接口，支持实时查看响应数据</p>
           </div>
           <div class="feature-item">
-            <h4>🏗️ 分层架构</h4>
-            <p>Controller → Service → Repository 清晰的分层设计</p>
+            <h4>📊 响应式数据流</h4>
+            <p>体验 Mono/Flux 异步流处理，理解背压机制</p>
           </div>
           <div class="feature-item">
-            <h4>⚡ 非阻塞 I/O</h4>
-            <p>高性能的异步非阻塞请求处理</p>
+            <h4>⚡ SSE 实时推送</h4>
+            <p>Server-Sent Events 服务端推送技术演示</p>
           </div>
           <div class="feature-item">
-            <h4>🌊 SSE 支持</h4>
-            <p>Server-Sent Events 实时数据推送</p>
+            <h4>🗄️ R2DBC 数据库</h4>
+            <p>响应式数据库访问，真正的非阻塞 I/O 操作</p>
           </div>
           <div class="feature-item">
             <h4>🔐 安全认证</h4>
-            <p>Spring Security 实现用户登录和权限控制</p>
+            <p>Spring Security 响应式权限控制实践</p>
           </div>
           <div class="feature-item">
-            <h4>👥 角色管理</h4>
-            <p>支持多角色分配和基于角色的访问控制（RBAC）</p>
+            <h4>📝 完整文档</h4>
+            <p>详细的实操教程，从入门到精通</p>
           </div>
         </div>
 
@@ -280,106 +279,189 @@
           <li><strong>WebClient</strong>：响应式 HTTP 客户端调用示例</li>
         </ol>
 
-        <h3>💡 关键技术点</h3>
+        <h3>📚 学习路径</h3>
+        <div
+          style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 20px; border-radius: 8px; margin: 15px 0;">
+          <ol style="margin-left: 20px; line-height: 2;">
+            <li><strong>第一阶段：基础概念</strong> - 理解响应式编程、Mono/Flux、背压机制</li>
+            <li><strong>第二阶段：WebFlux 开发</strong> - REST API、异常处理、参数验证</li>
+            <li><strong>第三阶段：数据访问</strong> - R2DBC、响应式 Repository、事务管理</li>
+            <li><strong>第四阶段：高级特性</strong> - SSE、WebSocket、WebClient</li>
+            <li><strong>第五阶段：安全认证</strong> - Spring Security、JWT、OAuth2</li>
+            <li><strong>第六阶段：性能优化</strong> - 线程模型、连接池、监控</li>
+          </ol>
+        </div>
 
-        <h4>1. Mono vs Flux</h4>
-        <ul>
-          <li><code>Mono&lt;T&gt;</code>：表示 0 或 1 个元素的异步序列</li>
-          <li><code>Flux&lt;T&gt;</code>：表示 0 到 N 个元素的异步序列</li>
-          <li>类比：Mono 类似 Optional，Flux 类似 Stream</li>
-        </ul>
+        <h3>🔧 核心技术对比</h3>
 
-        <h4>2. map vs flatMap</h4>
-        <ul>
-          <li><code>map()</code>：同步转换，适用于普通对象转换</li>
-          <li><code>flatMap()</code>：异步转换，适用于返回 Mono/Flux 的操作</li>
-        </ul>
+        <h4>WebFlux vs Spring MVC</h4>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+          <thead>
+            <tr style="background: #667eea; color: white;">
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">特性</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">WebFlux</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">Spring MVC</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">编程模型</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">响应式（异步非阻塞）</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">命令式（同步阻塞）</td>
+            </tr>
+            <tr style="background: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #ddd;">容器</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">Netty（默认）</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">Tomcat（默认）</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">并发能力</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">高（少量线程处理大量请求）</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">中（需要线程池）</td>
+            </tr>
+            <tr style="background: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #ddd;">适用场景</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">IO 密集型、高并发</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">CPU 密集型、传统应用</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <h4>3. WebFlux Security</h4>
-        <ul>
-          <li>使用 <code>@EnableWebFluxSecurity</code> 而非 <code>@EnableWebSecurity</code></li>
-          <li>实现 <code>ReactiveUserDetailsService</code> 而非 <code>UserDetailsService</code></li>
-          <li>返回 <code>Mono&lt;UserDetails&gt;</code> 而非 <code>UserDetails</code></li>
-        </ul>
+        <h4>R2DBC vs JPA</h4>
+        <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+          <thead>
+            <tr style="background: #764ba2; color: white;">
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">特性</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">R2DBC</th>
+              <th style="padding: 12px; text-align: left; border: 1px solid #ddd;">JPA/Hibernate</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">数据库访问</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">响应式（非阻塞）</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">阻塞式</td>
+            </tr>
+            <tr style="background: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #ddd;">性能</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">高</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">一般</td>
+            </tr>
+            <tr>
+              <td style="padding: 10px; border: 1px solid #ddd;">懒加载</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">❌ 不支持</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">✅ 支持</td>
+            </tr>
+            <tr style="background: #f8f9fa;">
+              <td style="padding: 10px; border: 1px solid #ddd;">生态系统</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">发展中</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">成熟</td>
+            </tr>
+          </tbody>
+        </table>
 
-        <h4>4. JPA 多对多关系</h4>
-        <ul>
-          <li>使用 <code>@ManyToMany</code> 注解建立关联</li>
-          <li>通过 <code>@JoinTable</code> 指定中间表</li>
-          <li>手动实现 equals/hashCode 避免懒加载异常</li>
-        </ul>
+        <h3>🎯 快速开始</h3>
+        <div style="background: white; padding: 20px; border-radius: 8px; margin: 15px 0;">
+          <ol style="margin-left: 20px;">
+            <li style="margin: 10px 0;"><strong>测试 REST API</strong>：点击导航栏的 "📡 接口调用" 按钮，在线测试所有接口</li>
+            <li style="margin: 10px 0;"><strong>查看用户数据</strong>：访问 <code>/api/users</code> 查看所有用户信息</li>
+            <li style="margin: 10px 0;"><strong>体验 SSE</strong>：访问 <code>/api/see</code> 体验实时数据推送</li>
+            <li style="margin: 10px 0;"><strong>阅读文档</strong>：查看项目根目录下的教程文档深入学习</li>
+          </ol>
+        </div>
 
-        <h3>🎯 项目结构</h3>
-        <pre><code>testWebFlux/
-├── src/main/java/com/wzh/demo/
-│   ├── controller/          # REST 控制器
-│   │   ├── HelloController.java
-│   │   ├── UserController.java
-│   │   ├── AdminController.java
-│   │   └── LoginController.java
-│   ├── service/             # 业务逻辑层
-│   │   ├── UserService.java
-│   │   ├── RoleService.java
-│   │   └── CustomUserDetailsService.java
-│   ├── repository/          # 数据访问层
-│   │   ├── UserRepository.java
-│   │   └── RoleRepository.java
-│   ├── model/               # 实体类
-│   │   ├── UserEntity.java
-│   │   └── RoleEntity.java
-│   ├── config/              # 配置类
-│   │   ├── SecurityConfig.java
-│   │   └── DataInitializer.java
-│   └── exception/           # 异常处理
-│       ├── UserNotFoundException.java
-│       └── GlobalExceptionHandler.java
-└── src/main/resources/
-    ├── application.yml      # 配置文件
-    └── templates/           # Thymeleaf 模板
-        ├── login.html
-        ├── welcome.html
-        └── admin/
-            ├── user-list.html
-            ├── user-form.html
-            ├── role-list.html
-            └── role-form.html</code></pre>
+        <h3>💻 代码示例</h3>
 
-        <h3>🚀 快速开始</h3>
-        <ol>
-          <li>克隆项目：<code>git clone &lt;repository-url&gt;</code></li>
-          <li>编译项目：<code>mvn clean compile</code></li>
-          <li>运行项目：<code>mvn spring-boot:run</code></li>
-          <li>访问登录页：<a href="/login" style="color: #667eea;">http://localhost:8080/login</a></li>
-          <li>测试账号：admin / 任意密码</li>
-        </ol>
+        <h4>1. 创建响应式 REST 接口</h4>
+        <pre><code>@RestController
+@RequestMapping("/api/users")
+public class UserController {
+    
+    private final UserService userService;
+    
+    // 查询所有用户 - 返回 Flux
+    @GetMapping
+    public Flux&lt;UserEntity&gt; findAll() {
+        return userService.findAll();
+    }
+    
+    // 根据ID查询 - 返回 Mono
+    @GetMapping("/{id}")
+    public Mono&lt;ResponseEntity&lt;UserEntity&gt;&gt; findById(@PathVariable Long id) {
+        return userService.findById(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build());
+    }
+}</code></pre>
 
-        <h3>📝 API 接口</h3>
-        <ul>
-          <li><code>GET /api/users</code> - 获取所有用户</li>
-          <li><code>GET /api/users/{id}</code> - 根据ID获取用户</li>
-          <li><code>POST /api/users</code> - 创建新用户</li>
-          <li><code>PUT /api/users/{id}</code> - 更新用户</li>
-          <li><code>DELETE /api/users/{id}</code> - 删除用户</li>
-          <li><code>GET /api/users/stream</code> - SSE 流式推送</li>
-        </ul>
+        <h4>2. R2DBC 响应式数据库操作</h4>
+        <pre><code>@Repository
+public interface UserRepository extends ReactiveCrudRepository&lt;UserEntity, Long&gt; {
+    
+    // 根据手机号查询
+    Mono&lt;UserEntity&gt; findByPhone(String phone);
+    
+    // 根据姓名查询
+    Mono&lt;UserEntity&gt; findByName(String name);
+    
+    // 自定义查询
+    @Query("SELECT * FROM users WHERE active = :active")
+    Flux&lt;UserEntity&gt; findByActive(Boolean active);
+}</code></pre>
 
-        <h3>🔧 常见问题</h3>
+        <h4>3. WebClient 响应式客户端调用</h4>
+        <pre><code>@Component
+public class UserClient {
+    
+    private final WebClient webClient;
+    
+    public Flux&lt;UserEntity&gt; findAllUsers() {
+        return webClient.get()
+                .uri("/api/users")
+                .retrieve()
+                .bodyToFlux(UserEntity.class);
+    }
+    
+    public Mono&lt;UserEntity&gt; saveUser(UserEntity user) {
+        return webClient.post()
+                .uri("/api/users")
+                .bodyValue(user)
+                .retrieve()
+                .bodyToMono(UserEntity.class);
+    }
+}</code></pre>
 
-        <h4>Q1: WebFlux 和 Spring MVC 有什么区别？</h4>
-        <p>A: WebFlux 是响应式的、非阻塞的，适合高并发 I/O 密集型场景；Spring MVC 是传统的 Servlet 模型，阻塞式的。WebFlux 使用 Netty 容器，而 Spring MVC 通常使用
-          Tomcat。</p>
+        <h3>❓ 常见问题</h3>
 
-        <h4>Q2: 为什么要使用 Netty 而不是 Tomcat？</h4>
-        <p>A: Netty 是响应式的非阻塞 I/O 服务器，与 WebFlux 的响应式编程模型更匹配，性能更好，能更好地发挥 WebFlux 的优势。</p>
+        <div style="margin: 15px 0;">
+          <h4 style="color: #667eea; margin-bottom: 10px;">Q: 什么时候应该使用 WebFlux？</h4>
+          <p style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 0;"><strong>A:</strong> 当你的应用是 IO
+            密集型（如大量数据库查询、HTTP 调用）、需要高并发处理能力、或者需要实时数据推送（SSE/WebSocket）时，WebFlux 是很好的选择。</p>
+        </div>
 
-        <h4>Q3: 如何处理阻塞操作（如 JPA）？</h4>
-        <p>A: 使用 <code>Mono.fromCallable()</code> 将阻塞操作包装为响应式类型，在独立的线程池中执行，避免阻塞主事件循环。</p>
+        <div style="margin: 15px 0;">
+          <h4 style="color: #667eea; margin-bottom: 10px;">Q: R2DBC 和 JPA 可以一起使用吗？</h4>
+          <p style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 0;"><strong>A:</strong>
+            可以，但不推荐。如果必须混用，需要使用 <code>Mono.fromCallable()</code> 包装 JPA 的阻塞调用，在独立的线程池中执行。</p>
+        </div>
+
+        <div style="margin: 15px 0;">
+          <h4 style="color: #667eea; margin-bottom: 10px;">Q: 如何处理响应式编程中的错误？</h4>
+          <p style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 0;"><strong>A:</strong> 使用
+            <code>onErrorResume()</code>、<code>onErrorReturn()</code>、<code>onErrorMap()</code> 等操作符进行错误处理和恢复。</p>
+        </div>
+
+        <div style="margin: 15px 0;">
+          <h4 style="color: #667eea; margin-bottom: 10px;">Q: WebFlux 的性能一定比 Spring MVC 好吗？</h4>
+          <p style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 0;"><strong>A:</strong> 不一定。在高并发 IO
+            密集型场景下 WebFlux 优势明显，但在 CPU 密集型或低并发场景下，Spring MVC 可能更简单高效。</p>
+        </div>
 
         <div
-          style="margin-top: 30px; padding: 20px; background: #e7f3ff; border-radius: 8px; border-left: 4px solid #667eea;">
-          <p style="margin: 0; color: #333;"><strong>💡 提示：</strong>完整教程文档请查看项目根目录下的
-            <code>Spring WebFlux 完整实操教程.md</code> 文件。
-          </p>
+          style="margin-top: 30px; padding: 20px; background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-radius: 8px; border-left: 4px solid #667eea;">
+          <p style="margin: 0; color: #333;"><strong>📖 完整教程：</strong>详细的学习文档请查看项目根目录下的
+            <code>Spring WebFlux 完整实操教程.md</code> 文件，包含从入门到精通的完整指南。</p>
+          <p style="margin: 10px 0 0 0; color: #666; font-size: 14px;">💡 提示：建议按照学习路径逐步深入，先理解基础概念，再进行实战练习。</p>
         </div>
       </div>
     </div>

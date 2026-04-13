@@ -32,11 +32,19 @@ public class RoleService {
         .flatMap(existingRole -> {
           // 检查是否为更新操作（ID相同）
           if (role.getId() != null && existingRole.getId().equals(role.getId())) {
+            // 更新操作：保留创建时间，设置更新时间
+            role.setCreateTime(existingRole.getCreateTime());
+            role.setUpdateTime(java.time.LocalDateTime.now());
             return roleRepository.save(role);
           }
           return Mono.error(new RuntimeException("角色名称 '" + role.getName() + "' 已存在"));
         })
-        .switchIfEmpty(roleRepository.save(role));
+        .switchIfEmpty(Mono.defer(() -> {
+          // 新增操作：设置创建时间和更新时间
+          role.setCreateTime(java.time.LocalDateTime.now());
+          role.setUpdateTime(java.time.LocalDateTime.now());
+          return roleRepository.save(role);
+        }));
   }
 
   /**
