@@ -13,7 +13,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,24 +25,19 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
   @Override
   public Mono<UserDetails> findByUsername(String username) {
     log.info("=== 尝试登录用户名: {} ===", username);
-    return Mono.fromCallable(() -> {
-      log.debug("=== 查询数据库中的用户: {} ===", username);
-      return userRepository.findByName(username)
-          .orElseThrow(() -> {
-            log.warn("=== 用户不存在: {} ===", username);
-            return new UsernameNotFoundException("用户不存在: " + username);
-          });
-    })
+
+    return userRepository.findByName(username)
+        .switchIfEmpty(Mono.error(new UsernameNotFoundException("用户不存在: " + username)))
         .map(userEntity -> {
           log.debug("=== 找到用户: {}, 激活状态: {} ===", userEntity.getName(), userEntity.getActive());
+
           if (!userEntity.getActive()) {
             log.warn("=== 用户已被屏蔽: {} ===", username);
             throw new DisabledException("用户已被屏蔽: " + username);
           }
 
-          // 获取用户的所有角色
-          log.debug("=== 开始加载角色, 角色数量: {} ===", userEntity.getRoles().size());
-          List<SimpleGrantedAuthority> authorities = userEntity.getRoles().stream()
+          // 获取用户的所有角色并转换为权限
+          var authorities = userEntity.getRoles().stream()
               .map(role -> {
                 String roleName = "ROLE_" + role.getName();
                 log.debug("=== 添加角色: {} ===", roleName);
@@ -52,6 +46,7 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
               .collect(Collectors.toList());
 
           log.debug("=== 构建 UserDetails, 权限数量: {} ===", authorities.size());
+
           return (UserDetails) User.builder()
               .username(userEntity.getName())
               .password("") // 密码为空，演示环境不验证密码

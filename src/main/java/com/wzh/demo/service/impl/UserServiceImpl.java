@@ -5,12 +5,14 @@ import com.wzh.demo.model.UserEntity;
 import com.wzh.demo.repository.UserRepository;
 import com.wzh.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -19,36 +21,37 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Flux<UserEntity> findAll() {
-    return Flux.fromIterable(userRepository.findAll());
+    return userRepository.findAll();
   }
 
   @Override
   public Mono<UserEntity> findById(Long id) {
-    return Mono.justOrEmpty(userRepository.findById(id).orElse(null))
+    return userRepository.findById(id)
         .switchIfEmpty(Mono.error(new UserNotFoundException("用户ID=" + id + "不存在")));
   }
 
   @Override
   public Mono<UserEntity> save(UserEntity user) {
-    return Mono.justOrEmpty(userRepository.findByPhone(user.getPhone()).orElse(null))
+    return userRepository.findByPhone(user.getPhone())
         .flatMap(existingUser -> Mono.<UserEntity>error(new RuntimeException("手机号" + user.getPhone() + "已被注册")))
-        .switchIfEmpty(Mono.fromCallable(() -> userRepository.save(user)).flatMapMany(Flux::just).next());
+        .switchIfEmpty(
+            userRepository.save(user));
   }
 
   @Override
   public Mono<UserEntity> update(Long id, UserEntity user) {
     return findById(id)
         .flatMap(existingUser -> {
+          // 检查手机号是否被其他用户使用
           if (!existingUser.getPhone().equals(user.getPhone())) {
-            return Mono.justOrEmpty(userRepository.findByPhone(user.getPhone()).orElse(null))
+            return userRepository.findByPhone(user.getPhone())
                 .flatMap(phoneUser -> Mono.<UserEntity>error(new RuntimeException("手机号" + user.getPhone() + "已被注册")))
                 .switchIfEmpty(Mono.just(existingUser));
           }
           return Mono.just(existingUser);
         })
         .flatMap(existingUser -> {
-          System.out.println("=== 开始更新用户: " + existingUser.getName() + " ===");
-          System.out.println("=== 新角色数量: " + (user.getRoles() != null ? user.getRoles().size() : 0) + " ===");
+          log.info("=== 开始更新用户: {} ===", existingUser.getName());
 
           existingUser.setName(user.getName());
           existingUser.setAge(user.getAge());
@@ -56,39 +59,23 @@ public class UserServiceImpl implements UserService {
           existingUser.setEmail(user.getEmail());
           existingUser.setActive(user.getActive());
 
-          // 清空旧的角色关系
-          existingUser.getRoles().clear();
-          System.out.println("=== 已清空旧角色 ===");
+          // 手动设置更新时间
+          existingUser.setUpdateTime(LocalDateTime.now());
 
-          // 添加新的角色
-          if (user.getRoles() != null) {
-            existingUser.getRoles().addAll(user.getRoles());
-            System.out.println("=== 添加了 " + user.getRoles().size() + " 个新角色 ===");
-          }
-
-          System.out.println("=== 保存前的角色数量: " + existingUser.getRoles().size() + " ===");
-
-          // 手动设置更新时间，确保 @UpdateTimestamp 生效
-          existingUser.setUpdateTime(java.time.LocalDateTime.now());
-
-          return Mono.fromCallable(() -> userRepository.save(existingUser)).flatMapMany(Flux::just).next();
+          return userRepository.save(existingUser);
         });
   }
 
   @Override
   public Mono<Void> deleteById(Long id) {
     return findById(id)
-        .flatMap(user -> Mono.fromRunnable(() -> userRepository.deleteById(id)));
+        .then(userRepository.deleteById(id));
   }
 
   @Override
   public Mono<UserEntity> findByPhone(String phone) {
-    return Mono.justOrEmpty(userRepository.findByPhone(phone).orElse(null));
-  }
-
-  @Override
-  public Page<UserEntity> findUsersWithPage(Pageable pageable) {
-    return userRepository.findAll(pageable);
+    return userRepository.findByPhone(phone)
+        .switchIfEmpty(Mono.error(new UserNotFoundException("手机号=" + phone + "的用户不存在")));
   }
 
   @Override
@@ -96,9 +83,9 @@ public class UserServiceImpl implements UserService {
     return findById(id)
         .flatMap(user -> {
           user.setActive(!user.getActive());
-          // 手动设置更新时间
-          user.setUpdateTime(java.time.LocalDateTime.now());
-          return Mono.fromCallable(() -> userRepository.save(user)).flatMapMany(Flux::just).next();
+          user.setUpdateTime(LocalDateTime.now());
+          log.info("用户 {} 状态切换为: {}", user.getName(), user.getActive());
+          return userRepository.save(user);
         });
   }
 }

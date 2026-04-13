@@ -68,8 +68,14 @@ class TestWebFluxApplicationTests {
 
 	@Test
 	void testSaveUserAndGetPhone() {
-		UserEntity newUser = new UserEntity(null, "测试用户", 30, "13800138005", "test@example.com", true,
-				new java.util.HashSet<>());
+		UserEntity newUser = new UserEntity();
+		newUser.setName("测试用户");
+		newUser.setAge(30);
+		newUser.setPhone("13800138005");
+		newUser.setEmail("test@example.com");
+		newUser.setActive(true);
+		newUser.setRoles(new java.util.HashSet<>());
+
 		Mono<String> phoneMono = userClient.saveUserAndGetPhone(newUser);
 		StepVerifier.create(phoneMono)
 				.expectNext("13800138005")

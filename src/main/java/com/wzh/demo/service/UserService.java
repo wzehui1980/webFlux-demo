@@ -1,8 +1,6 @@
 package com.wzh.demo.service;
 
 import com.wzh.demo.model.UserEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,9 +17,6 @@ public interface UserService {
   Mono<Void> deleteById(Long id);
 
   Mono<UserEntity> findByPhone(String phone);
-
-  // 分页查询用户
-  Page<UserEntity> findUsersWithPage(Pageable pageable);
 
   // 屏蔽/激活用户
   Mono<UserEntity> toggleUserStatus(Long id);

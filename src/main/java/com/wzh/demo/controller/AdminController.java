@@ -2,12 +2,7 @@ package com.wzh.demo.controller;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +10,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ServerWebExchange;
 
 import com.wzh.demo.model.RoleEntity;
@@ -25,6 +19,7 @@ import com.wzh.demo.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -37,33 +32,26 @@ public class AdminController {
   private final RoleService roleService;
   private final com.wzh.demo.repository.RoleRepository roleRepository;
 
-  // 用户列表页面（分页）
+  // 用户列表页面
   @GetMapping("/users")
-  public String listUsers(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      Model model) {
-
-    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-    Page<UserEntity> userPage = userService.findUsersWithPage(pageable);
-
-    model.addAttribute("userPage", userPage);
-    model.addAttribute("currentPage", page);
-    model.addAttribute("totalPages", userPage.getTotalPages());
-    model.addAttribute("totalItems", userPage.getTotalElements());
-
-    return "admin/user-list";
+  public Mono<String> listUsers(Model model) {
+    return userService.findAll().collectList()
+        .doOnNext(users -> {
+          model.addAttribute("users", users);
+        })
+        .thenReturn("admin/user-list");
   }
 
   // 显示新增用户表单
   @GetMapping("/users/new")
   public Mono<String> showCreateForm(Model model) {
-    return Mono.fromCallable(() -> {
-      model.addAttribute("user", new UserEntity());
-      model.addAttribute("isEdit", false);
-      model.addAttribute("allRoles", roleService.findAllRoles());
-      return "admin/user-form";
-    });
+    return roleService.findAllRoles().collectList()
+        .doOnNext(roles -> {
+          model.addAttribute("user", new UserEntity());
+          model.addAttribute("isEdit", false);
+          model.addAttribute("allRoles", roles);
+        })
+        .thenReturn("admin/user-form");
   }
 
   /**
@@ -114,26 +102,33 @@ public class AdminController {
             user.setEmail(email);
             user.setActive(activeStr != null ? Boolean.parseBoolean(activeStr) : true);
 
-            // 将角色 ID 字符串转换为 RoleEntity 对象集合
-            Set<RoleEntity> roleEntities = new HashSet<>();
-            if (roleIdsList != null && !roleIdsList.isEmpty()) {
-              for (String roleIdStr : roleIdsList) {
-                try {
-                  Long roleId = Long.parseLong(roleIdStr);
-                  RoleEntity role = roleRepository.findById(roleId)
-                      .orElseThrow(() -> new RuntimeException("角色不存在: " + roleId));
-                  roleEntities.add(role);
-                  log.info("添加角色: {} (ID: {})", role.getName(), roleId);
-                } catch (NumberFormatException e) {
-                  throw new RuntimeException("无效的角色 ID: " + roleIdStr);
-                }
-              }
-            }
-            user.setRoles(roleEntities);
-            log.info("设置后的角色数量: {}", roleEntities.size());
-
             return user;
           })
+              .flatMap(user -> {
+                // 处理角色关联
+                if (roleIdsList == null || roleIdsList.isEmpty()) {
+                  user.setRoles(new HashSet<>());
+                  return Mono.just(user);
+                }
+
+                // 将角色 ID 字符串转换为 RoleEntity 对象集合
+                return Flux.fromIterable(roleIdsList)
+                    .map(roleIdStr -> {
+                      try {
+                        return Long.parseLong(roleIdStr);
+                      } catch (NumberFormatException e) {
+                        throw new RuntimeException("无效的角色 ID: " + roleIdStr);
+                      }
+                    })
+                    .flatMap(roleId -> roleRepository.findById(roleId)
+                        .switchIfEmpty(Mono.error(new RuntimeException("角色不存在: " + roleId))))
+                    .collectList()
+                    .doOnNext(roleEntities -> {
+                      user.setRoles(new HashSet<>(roleEntities));
+                      log.info("设置后的角色数量: {}", roleEntities.size());
+                    })
+                    .thenReturn(user);
+              })
               .flatMap(newUser -> userService.save(newUser))
               .then(Mono.just("redirect:/admin/users"))
               .onErrorResume(e -> {
@@ -147,12 +142,13 @@ public class AdminController {
   @GetMapping("/users/edit/{id}")
   public Mono<String> showEditForm(@PathVariable Long id, Model model) {
     return userService.findById(id)
-        .map(user -> {
-          model.addAttribute("user", user);
-          model.addAttribute("isEdit", true);
-          model.addAttribute("allRoles", roleService.findAllRoles());
-          return "admin/user-form";
-        })
+        .flatMap(user -> roleService.findAllRoles().collectList()
+            .doOnNext(roles -> {
+              model.addAttribute("user", user);
+              model.addAttribute("isEdit", true);
+              model.addAttribute("allRoles", roles);
+            })
+            .thenReturn("admin/user-form"))
         .defaultIfEmpty("redirect:/admin/users");
   }
 
@@ -169,7 +165,6 @@ public class AdminController {
    */
   @PostMapping("/users/update/{id}")
   public Mono<String> updateUser(@PathVariable Long id, ServerWebExchange exchange) {
-    // 异步获取表单数据（返回 Mono<MultiValueMap<String, String>>）
     return exchange.getFormData()
         .flatMap(formData -> {
           log.info("更新用户 ID: {}", id);
@@ -208,27 +203,33 @@ public class AdminController {
             user.setEmail(email);
             user.setActive(activeStr != null ? Boolean.parseBoolean(activeStr) : true);
 
-            // 将角色 ID 字符串转换为 RoleEntity 对象集合
-            Set<RoleEntity> roleEntities = new HashSet<>();
-            if (roleIdsList != null && !roleIdsList.isEmpty()) {
-              for (String roleIdStr : roleIdsList) {
-                try {
-                  Long roleId = Long.parseLong(roleIdStr);
-                  // 从数据库查询角色对象
-                  RoleEntity role = roleRepository.findById(roleId)
-                      .orElseThrow(() -> new RuntimeException("角色不存在: " + roleId));
-                  roleEntities.add(role);
-                } catch (NumberFormatException e) {
-                  throw new RuntimeException("无效的角色 ID: " + roleIdStr);
-                }
-              }
-            }
-            // 设置用户角色关系
-            user.setRoles(roleEntities);
-            log.info("设置后的角色数量: {}", roleEntities.size());
-
             return user;
           })
+              .flatMap(user -> {
+                // 处理角色关联
+                if (roleIdsList == null || roleIdsList.isEmpty()) {
+                  user.setRoles(new HashSet<>());
+                  return Mono.just(user);
+                }
+
+                // 将角色 ID 字符串转换为 RoleEntity 对象集合
+                return Flux.fromIterable(roleIdsList)
+                    .map(roleIdStr -> {
+                      try {
+                        return Long.parseLong(roleIdStr);
+                      } catch (NumberFormatException e) {
+                        throw new RuntimeException("无效的角色 ID: " + roleIdStr);
+                      }
+                    })
+                    .flatMap(roleId -> roleRepository.findById(roleId)
+                        .switchIfEmpty(Mono.error(new RuntimeException("角色不存在: " + roleId))))
+                    .collectList()
+                    .doOnNext(roleEntities -> {
+                      user.setRoles(new HashSet<>(roleEntities));
+                      log.info("设置后的角色数量: {}", roleEntities.size());
+                    })
+                    .thenReturn(user);
+              })
               // 调用服务层更新用户（包括角色关系）
               .flatMap(updatedUser -> userService.update(id, updatedUser))
               // 更新成功后重定向到用户列表
@@ -257,22 +258,14 @@ public class AdminController {
 
   // ==================== 角色管理 ====================
 
-  // 角色列表页面（分页）
+  // 角色列表页面
   @GetMapping("/roles")
-  public String listRoles(
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
-      Model model) {
-
-    Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-    Page<RoleEntity> rolePage = roleService.findRolesWithPage(pageable);
-
-    model.addAttribute("rolePage", rolePage);
-    model.addAttribute("currentPage", page);
-    model.addAttribute("totalPages", rolePage.getTotalPages());
-    model.addAttribute("totalItems", rolePage.getTotalElements());
-
-    return "admin/role-list";
+  public Mono<String> listRoles(Model model) {
+    return roleService.findAllRoles().collectList()
+        .doOnNext(roles -> {
+          model.addAttribute("roles", roles);
+        })
+        .thenReturn("admin/role-list");
   }
 
   // 显示新增角色表单

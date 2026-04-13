@@ -63,16 +63,23 @@
 			<scope>test</scope>
 		</dependency>
 		
+		<!-- H2 数据库 -->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
 			<!-- 移除 runtime scope，使 H2 tools 在编译时可用 -->
 		</dependency>
 		
-		<!-- Spring Data JPA -->
+		<!-- Spring Data R2DBC (响应式数据库访问) -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+		</dependency>
+		
+		<!-- H2 R2DBC 驱动 -->
+		<dependency>
+			<groupId>io.r2dbc</groupId>
+			<artifactId>r2dbc-h2</artifactId>
 		</dependency>
 		
 		<!-- Spring Security -->

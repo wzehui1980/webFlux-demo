@@ -2,14 +2,13 @@ spring:
   application:
     name: testWebFlux
   
-  # H2 Database Configuration
-  datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
+  # H2 Database Configuration (R2DBC)
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb
     username: sa
     password:
   
-  # H2 Console Configuration
+  # H2 Console Configuration (独立端口)
   h2:
     console:
       enabled: true
@@ -17,9 +16,9 @@ spring:
       settings:
         web-allow-others: true
   
-  # JPA Configuration
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: create-drop
-    show-sql: true
+  # R2DBC Schema 初始化
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
